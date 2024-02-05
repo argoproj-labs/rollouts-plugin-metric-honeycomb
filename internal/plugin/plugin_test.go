@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/argoproj/argo-rollouts/pkg/apis/rollouts/v1alpha1"
+	pluginTypes "github.com/argoproj/argo-rollouts/utils/plugin/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -168,7 +169,9 @@ func TestRunSuccessfully(t *testing.T) {
 			Plugin: map[string]json.RawMessage{"argoproj-labs/honeycomb": configBytes},
 		},
 	}
-	p, _ := NewHoneycombProvider(metric)
+	p, err := NewHoneycombProvider(metric)
+	assert.NoError(t, err)
+
 	p.api = mock
 
 	measurement := p.Run(newAnalysisRun(), metric)
@@ -189,7 +192,9 @@ func TestGetMetadata(t *testing.T) {
 			Plugin: map[string]json.RawMessage{"argoproj-labs/honeycomb": []byte(`{"query":"bar","dataset":"test"}`)},
 		},
 	}
-	p, _ := NewHoneycombProvider(metric)
+	p, err := NewHoneycombProvider(metric)
+	assert.NoError(t, err)
+
 	p.api = &mockAPI{}
 
 	metadata := p.GetMetadata(metric)
@@ -223,7 +228,9 @@ func TestRunWithQueryError(t *testing.T) {
 			Plugin: map[string]json.RawMessage{"argoproj-labs/honeycomb": configBytes},
 		},
 	}
-	p, _ := NewHoneycombProvider(metric)
+	p, err := NewHoneycombProvider(metric)
+	assert.NoError(t, err)
+
 	p.api = mock
 
 	measurement := p.Run(newAnalysisRun(), metric)
@@ -248,7 +255,9 @@ func TestRunWithResolveArgsError(t *testing.T) {
 			Plugin: map[string]json.RawMessage{"argoproj-labs/honeycomb": []byte(`{"query":"bar","dataset":"test"}`)},
 		},
 	}
-	p, _ := NewHoneycombProvider(metric)
+	p, err := NewHoneycombProvider(metric)
+	assert.NoError(t, err)
+
 	p.api = mock
 
 	measurement := p.Run(newAnalysisRun(), metric)
@@ -287,7 +296,9 @@ func TestRunWithEvaluationError(t *testing.T) {
 			Plugin: map[string]json.RawMessage{"argoproj-labs/honeycomb": configBytes},
 		},
 	}
-	p, _ := NewHoneycombProvider(metric)
+	p, err := NewHoneycombProvider(metric)
+	assert.NoError(t, err)
+
 	p.api = mock
 
 	measurement := p.Run(newAnalysisRun(), metric)
@@ -308,7 +319,9 @@ func TestResume(t *testing.T) {
 			Plugin: map[string]json.RawMessage{"argoproj-labs/honeycomb": []byte(`{"query":"bar","dataset":"test"}`)},
 		},
 	}
-	p, _ := NewHoneycombProvider(metric)
+	p, err := NewHoneycombProvider(metric)
+	assert.NoError(t, err)
+
 	p.api = mock
 
 	now := metav1.Now()
@@ -321,10 +334,18 @@ func TestResume(t *testing.T) {
 }
 
 func TestTerminate(t *testing.T) {
-	metric := v1alpha1.Metric{}
-	p, _ := NewHoneycombProvider(metric)
-	p.api = &mockAPI{}
+	metric := v1alpha1.Metric{
+		Name:             "foo",
+		SuccessCondition: "result == 300",
+		FailureCondition: "result != 300",
+		Provider: v1alpha1.MetricProvider{
+			Plugin: map[string]json.RawMessage{"argoproj-labs/honeycomb": []byte(`{"query":"bar","dataset":"test"}`)},
+		},
+	}
+	p, err := NewHoneycombProvider(metric)
+	assert.NoError(t, err)
 
+	p.api = &mockAPI{}
 	now := metav1.Now()
 	previousMeasurement := v1alpha1.Measurement{
 		StartedAt: &now,
@@ -335,9 +356,18 @@ func TestTerminate(t *testing.T) {
 }
 
 func TestGarbageCollect(t *testing.T) {
-	metric := v1alpha1.Metric{}
-	p, _ := NewHoneycombProvider(metric)
-	p.api = &mockAPI{}
-	err := p.GarbageCollect(nil, metric, 0)
+	metric := v1alpha1.Metric{
+		Name:             "foo",
+		SuccessCondition: "result == 300",
+		FailureCondition: "result != 300",
+		Provider: v1alpha1.MetricProvider{
+			Plugin: map[string]json.RawMessage{"argoproj-labs/honeycomb": []byte(`{"query":"bar","dataset":"test"}`)},
+		},
+	}
+	p, err := NewHoneycombProvider(metric)
 	assert.NoError(t, err)
+
+	p.api = &mockAPI{}
+	err = p.GarbageCollect(nil, metric, 0)
+	assert.Equal(t, err, pluginTypes.RpcError{})
 }

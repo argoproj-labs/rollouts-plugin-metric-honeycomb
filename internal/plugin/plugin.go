@@ -47,7 +47,13 @@ type Config struct {
 
 func NewHoneycombProvider(metric v1alpha1.Metric) (*HoneycombProvider, error) {
 	config := Config{}
-	err := json.Unmarshal(metric.Provider.Plugin["argoproj-labs/honeycomb"], &config)
+
+	pluginConfig, ok := metric.Provider.Plugin["argoproj-labs/honeycomb"]
+	if !ok {
+		return nil, errors.New("unable to find honeycomb plugin config")
+	}
+
+	err := json.Unmarshal(pluginConfig, &config)
 	if err != nil {
 		return nil, err
 	}
