@@ -6,21 +6,25 @@ Below is an example of an `AnalysisTemplate` using the [Honeycomb](https://honey
 apiVersion: argoproj.io/v1alpha1
 kind: AnalysisTemplate
 metadata:
-  name: success-rate
+  name: error-rate
 spec:
   args:
   - name: service-name
+  - name: api-key
+    valueFrom:
+      secretKeyRef:
+        name: honeycomb
+        key: api-key
   metrics:
-  - name: success-rate
+  - name: error-rate
     interval: 5m
     successCondition: result == 0
     failureLimit: 3
     provider:
       prometheus:
         # dataset is optional, defaults to all datasets in the environment
-        dataset: 'my-service' 
-        # timeout is expressed in seconds
-        timeout: 40
+        dataset: my-service 
+        apiKey: "{{ args.api-key }}"
         query: |
           {
             "time_range": 600,
@@ -49,7 +53,7 @@ of the specified calculation.  Only the `time_range` should be specified without
 Queries can be constructed and tested in the Honeycomb UI, and then the query specification can be found by clicking the three dots above the "Run Query" button in the query builder.
 <img src="./assets/honeycomb-query-definition.png" alt="get honeycomb query defintion" width="25%">
 
-The Honeycomb API key must be specified as a Kubernetes `Secret` in the argo-rollouts namespace:
+The Honeycomb API key must be specified in a Kubernetes `Secret` in the argo-rollouts namespace:
 ```yaml
 apiVersion: v1
 kind: Secret

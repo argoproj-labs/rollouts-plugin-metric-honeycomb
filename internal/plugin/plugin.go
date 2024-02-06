@@ -12,9 +12,6 @@ import (
 	"github.com/expr-lang/expr/vm"
 	log "github.com/sirupsen/logrus"
 
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-
 	"github.com/argoproj/argo-rollouts/metricproviders/plugin"
 	rolloutsPlugin "github.com/argoproj/argo-rollouts/metricproviders/plugin/rpc"
 	"github.com/argoproj/argo-rollouts/pkg/apis/rollouts/v1alpha1"
@@ -33,6 +30,7 @@ type HoneycombProvider struct {
 	queryID  string
 	rawQuery string
 	dataset  string
+	apiKey   string
 	LogCtx   log.Entry
 }
 
@@ -43,6 +41,8 @@ type Config struct {
 	Query string `json:"query,omitempty" protobuf:"bytes,1,opt,name=query"`
 	// Dataset is the name of the honeycomb dataset to query
 	Dataset string `json:"dataset,omitempty" protobuf:"bytes,2,opt,name=dataset"`
+	// APIKey is the honeycomb API key to use for authentication
+	APIKey string `json:"apiKey,omitempty" protobuf:"bytes,3,opt,name=apiKey"`
 }
 
 func NewHoneycombProvider(metric v1alpha1.Metric) (*HoneycombProvider, error) {
@@ -61,21 +61,12 @@ func NewHoneycombProvider(metric v1alpha1.Metric) (*HoneycombProvider, error) {
 	return &HoneycombProvider{
 		rawQuery: config.Query,
 		dataset:  config.Dataset,
+		apiKey:   config.APIKey,
 	}, nil
 }
 
 func (p *HoneycombProvider) InitPlugin() pluginTypes.RpcError {
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		return pluginTypes.RpcError{ErrorString: err.Error()}
-	}
-
-	k8sClientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return pluginTypes.RpcError{ErrorString: err.Error()}
-	}
-
-	api, err := newHoneycombAPI(p.LogCtx, k8sClientset)
+	api, err := newHoneycombAPI(p.LogCtx, p.apiKey)
 	if err != nil {
 		return pluginTypes.RpcError{ErrorString: err.Error()}
 	}

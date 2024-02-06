@@ -10,10 +10,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/argoproj/argo-rollouts/utils/defaults"
 	log "github.com/sirupsen/logrus"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 )
 
 const (
@@ -98,17 +95,7 @@ type honeycombClient struct {
 
 var _ honeycombAPI = &honeycombClient{}
 
-func newHoneycombAPI(logCtx log.Entry, kubeclientset kubernetes.Interface) (honeycombAPI, error) {
-	var apiKey string
-
-	ns := defaults.Namespace()
-	secret, err := kubeclientset.CoreV1().Secrets(ns).Get(context.Background(), HoneycombSecret, metav1.GetOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	apiKey = string(secret.Data[HoneycombAPIKey])
-
+func newHoneycombAPI(logCtx log.Entry, apiKey string) (honeycombAPI, error) {
 	tr := &http.Transport{
 		MaxIdleConns:       10,
 		IdleConnTimeout:    30 * time.Second,
