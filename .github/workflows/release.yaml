@@ -79,7 +79,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./dist/${{ env.PLUGIN_NAME }}-linux-amd64
-          asset_name: ${{ env.PLUGIN_NAME }}
+          asset_name: ${{ env.PLUGIN_NAME }}-linux-amd64
           asset_content_type: application/octet-stream
         if: ${{ env.IS_DRY_RUN != 'true' }}
 
@@ -90,7 +90,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./dist/${{ env.PLUGIN_NAME }}-linux-arm64
-          asset_name: ${{ env.PLUGIN_NAME }}
+          asset_name: ${{ env.PLUGIN_NAME }}-linux-arm64
           asset_content_type: application/octet-stream
         if: ${{ env.IS_DRY_RUN != 'true' }}
 
