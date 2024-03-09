@@ -17,6 +17,9 @@ on:
         description: "Golang version to use"
         required: false
         default: "1.22"
+      tag_name:
+        description: "Tag name to use for release"
+        required: true
 
 env:
   GOLANG_VERSION: "1.22"
