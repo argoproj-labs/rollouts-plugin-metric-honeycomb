@@ -3,6 +3,20 @@ on:
   push:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
+  workflow_dispatch:
+    inputs:
+      is_draft_release:
+        description: "Whether a draft release should be created, instead of public one"
+        required: false
+        default: false
+      is_dry_run:
+        description: "Whether to create release"
+        required: false
+        default: false
+      golang_version:
+        description: "Golang version to use"
+        required: false
+        default: "1.22"
 
 env:
   GOLANG_VERSION: "1.22"
