@@ -13,10 +13,6 @@ on:
         description: "Whether to create release"
         required: false
         default: false
-      golang_version:
-        description: "Golang version to use"
-        required: false
-        default: "1.22"
       tag_name:
         description: "Tag name to use for release"
         required: true
