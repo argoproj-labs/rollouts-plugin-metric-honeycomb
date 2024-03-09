@@ -20,7 +20,7 @@ on:
 
 env:
   GOLANG_VERSION: "1.22"
-  PLUGIN_NAME: honeycomb-metric-plugin
+  PLUGIN_NAME: "honeycomb-metric-plugin"
 
 jobs:
   release-creation:
