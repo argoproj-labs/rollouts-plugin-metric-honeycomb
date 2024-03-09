@@ -13,17 +13,22 @@ on:
         description: "Whether to create release"
         required: false
         default: false
+      golang_version:
+        description: "Golang version to use for building"
+        required: false
+        default: "1.22"
       tag_name:
         description: "Tag name to use for release"
         required: true
 
 env:
-  GOLANG_VERSION: "1.22"
+  GOLANG_VERSION: ${{ github.event.inputs.golang_version || '1.22' }}
   PLUGIN_NAME: "honeycomb-metric-plugin"
+  TAG_NAME: ${{ github.event.inputs.tag_name || github.event.ref_name }}
 
 jobs:
   release-creation:
-    name: Automatic release creation triggered on ${{ github.ref_name }}
+    name: Automatic release creation
     runs-on: ubuntu-latest
     env:
       # Whether to create release
@@ -43,6 +48,8 @@ jobs:
       - name: Get current tag annotation
         id: tag-data
         uses: ericcornelissen/git-tag-annotation-action@v2
+        with:
+          tag: ${{ env.TAG_NAME }}
 
       - name: Create Release
         id: create_release
@@ -50,8 +57,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
+          tag_name: ${{ env.TAG_NAME }}
+          release_name: Release ${{ env.TAG_NAME }}
           body: ${{ steps.tag-data.outputs.git-tag-annotation }}
           draft: ${{ env.IS_DRAFT_RELEASE }}
           prerelease: false
