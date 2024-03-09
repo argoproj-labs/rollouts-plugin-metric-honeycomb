@@ -51,18 +51,6 @@ jobs:
         with:
           tag: ${{ env.TAG_NAME }}
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.TAG_NAME }}
-          release_name: Release ${{ env.TAG_NAME }}
-          body: ${{ steps.tag-data.outputs.git-tag-annotation }}
-          draft: ${{ env.IS_DRAFT_RELEASE }}
-          prerelease: false
-
       - name: Set up Golang
         uses: actions/setup-go@v4
         with:
@@ -72,46 +60,16 @@ jobs:
         run: |
           make release
 
-      - name: Upload linux/amd64 binary to release assets
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release
+        uses: softprops/action-gh-release@v2
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/${{ env.PLUGIN_NAME }}-linux-amd64
-          asset_name: ${{ env.PLUGIN_NAME }}-linux-amd64
-          asset_content_type: application/octet-stream
-        if: ${{ env.IS_DRY_RUN != 'true' }}
-
-      - name: Upload linux/arm64 binary to release assets
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/${{ env.PLUGIN_NAME }}-linux-arm64
-          asset_name: ${{ env.PLUGIN_NAME }}-linux-arm64
-          asset_content_type: application/octet-stream
-        if: ${{ env.IS_DRY_RUN != 'true' }}
-
-      - name: Upload darwin/amd64 binary to release assets
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/${{ env.PLUGIN_NAME }}-darwin-amd64
-          asset_name: ${{ env.PLUGIN_NAME }}-darwin-amd64
-          asset_content_type: application/octet-stream
-        if: ${{ env.IS_DRY_RUN != 'true' }}
-
-      - name: Upload darwin/arm64 binary to release assets
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/${{ env.PLUGIN_NAME }}-darwin-arm64
-          asset_name: ${{ env.PLUGIN_NAME }}
-          asset_content_type: application/octet-stream
-        if: ${{ env.IS_DRY_RUN != 'true' }}
+          tag_name: ${{ env.TAG_NAME }}
+          release_name: Release ${{ env.TAG_NAME }}
+          body: ${{ steps.tag-data.outputs.git-tag-annotation }}
+          draft: ${{ env.IS_DRAFT_RELEASE }}
+          make_latest: true
+          files: |
+            ./dist/${{ env.PLUGIN_NAME }}-linux-amd64
+            ./dist/${{ env.PLUGIN_NAME }}-linux-arm64
+            ./dist/${{ env.PLUGIN_NAME }}-darwin-amd64
+            ./dist/${{ env.PLUGIN_NAME }}-darwin-arm64

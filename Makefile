@@ -14,4 +14,4 @@ release:
 	make GOOS=linux GOARCH=amd64 BIN_NAME=honeycomb-metric-plugin-linux-amd64 build-plugin
 	make GOOS=linux GOARCH=arm64 BIN_NAME=honeycomb-metric-plugin-linux-arm64 build-plugin
 	make GOOS=darwin GOARCH=amd64 BIN_NAME=honeycomb-metric-plugin-darwin-amd64 build-plugin
-	make GOOS=darwin GOARCH=arm64 BIN_NAME=honeycomb-metric-plugin-linux-arm64 build-plugin
+	make GOOS=darwin GOARCH=arm64 BIN_NAME=honeycomb-metric-plugin-darwin-arm64 build-plugin
