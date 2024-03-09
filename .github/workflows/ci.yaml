@@ -1,4 +1,4 @@
-name: Gateway API plugin CI
+name: Plugin CI
 on:
   push:
     branches:
