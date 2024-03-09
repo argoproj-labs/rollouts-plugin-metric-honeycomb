@@ -21,10 +21,6 @@ on:
         description: "Tag name to use for release"
         required: true
 
-env:
-  GOLANG_VERSION: "1.22"
-  PLUGIN_NAME: "honeycomb-metric-plugin"
-
 jobs:
   release-creation:
     name: Automatic release creation triggered on ${{ github.ref_name }}
@@ -34,6 +30,8 @@ jobs:
       IS_DRY_RUN: false
       # Whether a draft release should be created, instead of public one
       IS_DRAFT_RELEASE: false
+      PLUGIN_NAME: "honeycomb-metric-plugin"
+      GOLANG_VERSION: "1.22"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
