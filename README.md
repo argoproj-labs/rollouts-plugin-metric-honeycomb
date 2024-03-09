@@ -77,3 +77,11 @@ To build a debug build run the command below:
 ```bash
 make build-plugin-debug
 ```
+
+### Maintainers
+To create a new release and binaries:
+```shell
+git tag -a v1.2.3 -m 'Release notes go here'
+# Or omit -m and fill in release notes at the prompt
+git push origin v1.2.3
+```
